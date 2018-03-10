@@ -1,0 +1,22 @@
+Circuit: * C:\Users\Mark.Smith\Dropbox\personal\SurfnCircuits\ETAClock\ETANixieClock\LTSpice\Nixie_Driver.asc
+
+Direct Newton iteration for .op point succeeded.
+
+Date: Mon Jul 17 16:17:32 2017
+Total elapsed time: 0.472 seconds.
+
+tnom = 27
+temp = 27
+method = modified trap
+totiter = 45418
+traniter = 45406
+tranpoints = 16409
+accept = 12295
+rejected = 4114
+matrix size = 23
+fillins = 12
+solver = Normal
+Matrix Compiler1: 2.18 KB object code size  0.7/0.4/[0.3]
+Matrix Compiler2: 2.10 KB object code size  0.4/0.5/[0.3]
+
+

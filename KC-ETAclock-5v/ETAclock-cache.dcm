@@ -1,0 +1,18 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP +160V
+K POWER, PWR
+$ENDCMP
+#
+$CMP Raspberry_PI_Zero_Hat
+D Raspberry Pi Zero Hat
+K RPI Zero 
+$ENDCMP
+#
+$CMP TPIC5B595
+D 8 bits serial in // out Shift Register 150mA DMOS 50v output clamp
+K POWER LOGIC 8-Bit Shift Register
+F C:/Users/Mark.Smith/Dropbox/personal/ETAClock/tpic6b595.pdf
+$ENDCMP
+#
+#End Doc Library
