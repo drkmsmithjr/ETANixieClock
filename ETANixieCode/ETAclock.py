@@ -95,18 +95,24 @@ def PrtCurrentTimeOneNixie(timestr):
        ind = 0
     if ind == 4:
        z = time_digits[3]
-       for y in range (0,16):
+       DigitSec.Write_Fade_Out()
+       time.sleep(.05)
+       for y in range (0,10):
           z+=1
           if z > 9:
              z = 0
           DigitSec.Write_Display([z])
-          time.sleep(.02)
+          time.sleep(.01)
        DigitSec.Display_Off() 
     else:
        #DigitSec.Display_Off()
        #time.sleep(0.02)
-       DigitSec.Ramp_Display([time_digits[ind]])
+       #DigitSec.Ramp_Display([time_digits[ind]])
        #DigitSec.Write_Display([time_digits[ind]])
+       if ind == 0:
+          DigitSec.Write_Fade_In([time_digits[ind]])
+       else:
+          DigitSec.Write_Fade_Out_Fade_In([time_digits[ind]])
        print(str(now), time_digits, time_digits[ind])
     ind += 1
 
@@ -144,6 +150,7 @@ def PrtWorkTimeOneNixie(timestr):
        #time.sleep(0.02)
        #DigitSec.Ramp_Display([time_digits[ind]])
        DigitSec.Write_Display([time_digits[ind]])
+       #DigitSec.Write_Fate_In([time_digits[ind]])
        print(str(now), time_digits, time_digits[ind])
     ind += 1
 
@@ -160,8 +167,8 @@ LoopRate = 1.0
 
 # how long to get actually leave (in minutes)
 ETDdelay = 2 
-DigitSec = NixieTube.NixieTube('IN-4', 1 , True)
-
+DigitSec = NixieTube.NixieTube()
+DigitSec.Pir_Sensor_On()
 
       
 #create the google maps object using the key

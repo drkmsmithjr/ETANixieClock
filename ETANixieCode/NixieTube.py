@@ -26,6 +26,8 @@ class NixieTube():
         self.StoredDigits = []
         # the data that will be transferred to update the display
         self.SerialData = []
+        for x in range (0,self.elements):
+           self.StoredDigits.append(0)
         #setup GPIO to use the BCM numbering.  The adufruit extension shows the BCM 
         # BCM numbering
         GPIO.setmode(GPIO.BCM)   
@@ -54,19 +56,17 @@ class NixieTube():
         #self.PIR_SENSOR = True
         self.PIR_SENSE = True
         # PIR delay is in minutes
-        self.PirDelay = 1
+        self.PirDelay = .5
         GPIO.setup(PIR_SENSE,GPIO.IN)
         # define the sampling rate and delays for the PIR sensor in seconds 
-        self.PirSampling = 1
+        # the PIR sensor has a delay of 4 seconds.  so every 3 seconds will ensure to capture event
+        self.PirSampling = 3
         self.CurrentDelay = 0
         # start the thread to sample the PIR Sensor
-
-        print("before thread definition")
         self.PirSampleThread = threading.Thread(target = self.PirSample, args = (self.PirSampling,self.PirDelay))
-        self.PirSampleThread.daemon = True
-        print("before thread start")
+        self.PirSampleThread.daemon = True 
         self.PirSampleThread.start()
-        print("after start")
+       
 
    def PirSample(self,PirSampling,PirDelay):
         # this routine will run in a thread
@@ -76,8 +76,8 @@ class NixieTube():
         next_call = time.time()
         while self.PIR_SENSOR:
            #test PIR_SENSE input.
-           self.CurrentDelay += 1
-           print(self.CurrentDelay)
+           self.CurrentDelay += PirSampling
+           #print(self.CurrentDelay)
            if GPIO.input(PIR_SENSE):
               self.CurrentDelay = 0
            if self.CurrentDelay > (PirDelay*60):
@@ -86,7 +86,7 @@ class NixieTube():
               self.CurrentDelay = PirDelay*60+1
            else:
               self.PIR_SENSE = True
-           print(self.PIR_SENSE,self.CurrentDelay)
+           print(self.PIR_SENSE,self.CurrentDelay,GPIO.input(PIR_SENSE))
            next_call = next_call + PirSampling
            time.sleep(next_call - time.time())
                 
@@ -181,7 +181,6 @@ class NixieTube():
         self.LoadData()
         self.Display_On()
 
-
    def Write_Display_No_Off(self, digits):
         if self.POWER_ON == False:
            self.Power_On()
@@ -191,6 +190,122 @@ class NixieTube():
         #self.Display_Off()
         self.LoadData()
         self.Display_On()
+        self.StoredDigits = digits
+
+   def Write_Fade_Out_Fade_In(self, digits):
+        if self.POWER_ON == False:
+           self.Power_On()
+        Tperiod = .0075   
+        Cycles = 30
+        print(self.StoredDigits)
+        #Fade OUt
+        for x in range (0,Cycles):
+           self.Display_On()
+           time.sleep(Tperiod*(Cycles-x-1)/Cycles)
+           self.digitsToSerial(self.StoredDigits)
+           self.register_clear()
+           self.ShiftData()
+           self.LoadData()
+           self.Display_Off()
+           time.sleep(Tperiod*(x+1)/Cycles)
+        #Fade In
+        Cycles = 20
+        for x in range (0,Cycles):
+           self.Display_Off() 
+           time.sleep(Tperiod*(Cycles-x-1)/Cycles)
+           self.digitsToSerial(digits)
+           self.register_clear()
+           self.ShiftData()
+           self.LoadData()
+           self.Display_On()
+           time.sleep(Tperiod*(x+1)/Cycles)
+        self.digitsToSerial(digits)
+        self.register_clear()
+        self.ShiftData()
+        self.LoadData()
+        self.Display_On()
+        self.StoredDigits = digits
+
+   def Write_Fade_Out(self):
+        # Fade_Out will take the StoredDigits and Fade it out.
+        # Tperiod is the Period of on and off
+        # cycles is how many cycles to make up the period.   
+        # Tperiod*Cycles is the total transition time 
+        if self.POWER_ON == False:
+           self.Power_On()
+        Tperiod = .0075   
+        Cycles = 30
+        print(self.StoredDigits)
+        #Fade OUt
+        for x in range (0,Cycles):
+           self.Display_On()
+           time.sleep(Tperiod*(Cycles-x-1)/Cycles)
+           self.digitsToSerial(self.StoredDigits)
+           self.register_clear()
+           self.ShiftData()
+           self.LoadData()
+           self.Display_Off()
+           time.sleep(Tperiod*(x+1)/Cycles)
+
+   def Write_Fade_In(self, digits):
+        # Fade_Out will take the StoredDigits and Fade it out.
+        # Tperiod is the Period of on and off
+        # cycles is how many cycles to make up the period.   
+        # Tperiod*Cycles is the total transition time
+        if self.POWER_ON == False:
+           self.Power_On()
+        Tperiod = .0075   
+        Cycles = 20
+        print(self.StoredDigits)
+        #Fade OUt
+        
+        #Fade In
+        for x in range (0,Cycles):
+           self.Display_Off() 
+           time.sleep(Tperiod*(Cycles-x-1)/Cycles)
+           self.digitsToSerial(digits)
+           self.register_clear()
+           self.ShiftData()
+           self.LoadData()
+           self.Display_On()
+           time.sleep(Tperiod*(x+1)/Cycles)
+        self.digitsToSerial(digits)
+        self.register_clear()
+        self.ShiftData()
+        self.LoadData()
+        self.Display_On()
+        self.StoredDigits = digits
+
+   def Write_In_Fade_Out(self, digits):
+        # Fade_Out will take the StoredDigits and Fade it out.
+        # Tperiod is the Period of on and off
+        # cycles is how many cycles to make up the period.   
+        # Tperiod*Cycles1 + Tperiod*Cycles2 is the total transition time 
+
+        if self.POWER_ON == False:
+           self.Power_On()
+        Tperiod = .0010   
+        Cycles = 20
+        print(self.StoredDigits)
+        for x in range (0,Cycles):
+           self.digitsToSerial(digits)
+           self.register_clear()
+           self.ShiftData()
+           self.LoadData()
+           self.Display_On()
+           time.sleep(Tperiod*(x+1)/Cycles)
+           self.digitsToSerial(self.StoredDigits)
+           self.register_clear()
+           self.ShiftData()
+           self.LoadData()
+           self.Display_On()
+           time.sleep(Tperiod*(Cycles - x-1)/Cycles)
+        self.digitsToSerial(digits)
+        self.register_clear()
+        self.ShiftData()
+        self.LoadData()
+        self.Display_On()
+        self.StoredDigits = digits
 
 
    def Ramp_Display(self,digits):
@@ -210,7 +325,14 @@ class NixieTube():
            time.sleep(.01)
         self.Power_On_Nodelay()
         time.sleep(.05)
+        self.StoredDigits = digits
         
+   def Pir_Sensor_On(self):
+        self.PIR_SENSOR = True    
+   
+   def Pir_Sensor_Off(self):
+        self.PIR_SENSOR = False    
+
   
 if __name__ == "__main__":
         print "hello world"
