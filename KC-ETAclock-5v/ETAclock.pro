@@ -1,4 +1,4 @@
-update=Sun 11 Mar 2018 11:47:09 AM PDT
+update=Sat 31 Mar 2018 05:59:51 PM PDT
 version=1
 last_client=kicad
 [pcbnew]
@@ -62,7 +62,7 @@ version=1
 [schematic_editor]
 version=1
 PageLayoutDescrFile=
-PlotDirectoryName=
+PlotDirectoryName=/home/mark/Dropbox/personal/SurfnCircuits/ETANixieClock/ETANixieClock/BlogGraphicsAndMisc/
 SubpartIdSeparator=0
 SubpartFirstId=65
 NetFmtName=

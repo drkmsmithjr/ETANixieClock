@@ -23,6 +23,9 @@ class NixieTube():
         self.nixietype = nixietype
         self.elements = elements
         # the displayed Digits to keep track of current state.  Initially empty
+        # digits and StoredDigits will be a array of integers representing the digits to be displayed
+        
+
         self.StoredDigits = []
         # the data that will be transferred to update the display
         self.SerialData = []
@@ -56,17 +59,17 @@ class NixieTube():
         #self.PIR_SENSOR = True
         self.PIR_SENSE = True
         # PIR delay is in minutes
-        self.PirDelay = .5
+        self.PirDelay = 1
         GPIO.setup(PIR_SENSE,GPIO.IN)
         # define the sampling rate and delays for the PIR sensor in seconds 
         # the PIR sensor has a delay of 4 seconds.  so every 3 seconds will ensure to capture event
-        self.PirSampling = 3
+        self.PirSampling = 1
         self.CurrentDelay = 0
         # start the thread to sample the PIR Sensor
         self.PirSampleThread = threading.Thread(target = self.PirSample, args = (self.PirSampling,self.PirDelay))
         self.PirSampleThread.daemon = True 
         self.PirSampleThread.start()
-       
+              
 
    def PirSample(self,PirSampling,PirDelay):
         # this routine will run in a thread
@@ -82,6 +85,7 @@ class NixieTube():
               self.CurrentDelay = 0
            if self.CurrentDelay > (PirDelay*60):
               self.PIR_SENSE = False
+              self.Power_Off()
               #clamp the currentDelay to max value
               self.CurrentDelay = PirDelay*60+1
            else:
@@ -90,13 +94,22 @@ class NixieTube():
            next_call = next_call + PirSampling
            time.sleep(next_call - time.time())
                 
-   def digitsToSerial (self,digits):
+   def digitsToSerial (self,digits,BlankCntrl = []):
         # this routine will conver the digits into the correct serial string.       
         # digits is an array that has at least # elemnts in it.
         # each digit will be converted into 6 serial bits.
         # bit 6 is even or odd (1 for even, 0 for odd)
         # the other 5 bits are zero except for the displayed digits
         # (ODD/EVEN BIT, 0-1,2-3,4-5,6-7, MSB = 8-9)
+        # BlankCntrl is an optional parameter
+        # that allows easy blanking of one digit in string
+        # It will be an array of Booleans that correspond to the digits array
+        # True for display, False for Blanking of that digit (not display)
+        # for 12h time, the first digit is often not displayed.
+        # test is BlankCntrl is empty, then default to display all 
+        if len(BlankCntrl) == 0:
+           for x in range (0, self.elements):
+              BlankCntrl.append(True)       
         #Resetting serial data
         self.SerialData = []
         for x in range (0,self.elements):
@@ -104,8 +117,13 @@ class NixieTube():
            dignum = math.floor(digits[x]/2.0)
            # convert this into a power of two + 1  
            sdata = int(2**(dignum+1))
-           # bit wise OR with bin(64) or 7 sigit binary so we can perform bitwise ops
-           sdata = sdata | 0b1000000
+           # test to see if we should blank this displayed.  TRUE mean display digit 
+           if BlankCntrl[x] == True:
+              # bit wise OR with bin(64) or 7 sigit binary so we can perform bitwise ops
+              sdata = sdata | 0b1000000
+           else:
+              #ensure all data is zero bits,2,3,4,5,6.   7th bit will be still even or odd and set.    
+              sdata = 0b1000000
            # test for EVEN or ODD.  If EVEN, then LSB = 1
            if digits[x] % 2.0 == 0:
               sdata = sdata | 0b1
@@ -113,6 +131,7 @@ class NixieTube():
            sdata = sdata ^ 0b111111
            strdata = bin(sdata)
            # now put the binary into array of 0 or 1 integers.  Ignore first 3 characters
+           # these characters will be 0b1 from above
            for x in range (3,9):
               self.SerialData.append(int(strdata[x]))
         #print(self.SerialData)
@@ -171,20 +190,21 @@ class NixieTube():
            self.POWER_ON = False
            time.sleep(.001)     
 
-   def Write_Display(self, digits):
+   def Write_Display(self, digits, BlankCntrl = []):
         if self.POWER_ON == False:
            self.Power_On()
-        self.digitsToSerial(digits)
+           time.sleep(.1)
+        self.digitsToSerial(digits, BlankCntrl)
         self.register_clear()
         self.ShiftData()
         self.Display_Off()
         self.LoadData()
         self.Display_On()
 
-   def Write_Display_No_Off(self, digits):
+   def Write_Display_No_Off(self, digits, BlankCntrl = []):
         if self.POWER_ON == False:
            self.Power_On()
-        self.digitsToSerial(digits)
+        self.digitsToSerial(digits, BlankCntrl)
         self.register_clear()
         self.ShiftData()
         #self.Display_Off()
@@ -192,17 +212,19 @@ class NixieTube():
         self.Display_On()
         self.StoredDigits = digits
 
-   def Write_Fade_Out_Fade_In(self, digits):
+   def Write_Fade_Out_Fade_In(self, digits, BlankCntrl = []):
+        #print("digits into functions")
+        #print(digits)
         if self.POWER_ON == False:
            self.Power_On()
         Tperiod = .0075   
         Cycles = 30
-        print(self.StoredDigits)
+        #print(self.StoredDigits)
         #Fade OUt
         for x in range (0,Cycles):
            self.Display_On()
            time.sleep(Tperiod*(Cycles-x-1)/Cycles)
-           self.digitsToSerial(self.StoredDigits)
+           self.digitsToSerial(self.StoredDigits, BlankCntrl)
            self.register_clear()
            self.ShiftData()
            self.LoadData()
@@ -213,18 +235,20 @@ class NixieTube():
         for x in range (0,Cycles):
            self.Display_Off() 
            time.sleep(Tperiod*(Cycles-x-1)/Cycles)
-           self.digitsToSerial(digits)
+           self.digitsToSerial(digits,BlankCntrl)
            self.register_clear()
            self.ShiftData()
            self.LoadData()
            self.Display_On()
            time.sleep(Tperiod*(x+1)/Cycles)
-        self.digitsToSerial(digits)
+        self.digitsToSerial(digits, BlankCntrl)
         self.register_clear()
         self.ShiftData()
         self.LoadData()
         self.Display_On()
         self.StoredDigits = digits
+        #print("stored digits")
+        #print(digits)
 
    def Write_Fade_Out(self):
         # Fade_Out will take the StoredDigits and Fade it out.
@@ -240,14 +264,14 @@ class NixieTube():
         for x in range (0,Cycles):
            self.Display_On()
            time.sleep(Tperiod*(Cycles-x-1)/Cycles)
-           self.digitsToSerial(self.StoredDigits)
+           self.digitsToSerial(self.StoredDigits, BlankCntrl)
            self.register_clear()
            self.ShiftData()
            self.LoadData()
            self.Display_Off()
            time.sleep(Tperiod*(x+1)/Cycles)
 
-   def Write_Fade_In(self, digits):
+   def Write_Fade_In(self, digits, BlankCntrl = []):
         # Fade_Out will take the StoredDigits and Fade it out.
         # Tperiod is the Period of on and off
         # cycles is how many cycles to make up the period.   
@@ -263,20 +287,20 @@ class NixieTube():
         for x in range (0,Cycles):
            self.Display_Off() 
            time.sleep(Tperiod*(Cycles-x-1)/Cycles)
-           self.digitsToSerial(digits)
+           self.digitsToSerial(digits, BlankCntrl)
            self.register_clear()
            self.ShiftData()
            self.LoadData()
            self.Display_On()
            time.sleep(Tperiod*(x+1)/Cycles)
-        self.digitsToSerial(digits)
+        self.digitsToSerial(digits, BlankCntrl)
         self.register_clear()
         self.ShiftData()
         self.LoadData()
         self.Display_On()
         self.StoredDigits = digits
 
-   def Write_In_Fade_Out(self, digits):
+   def Write_In_Fade_Out(self, digits, BlankCntrl = []):
         # Fade_Out will take the StoredDigits and Fade it out.
         # Tperiod is the Period of on and off
         # cycles is how many cycles to make up the period.   
@@ -288,19 +312,19 @@ class NixieTube():
         Cycles = 20
         print(self.StoredDigits)
         for x in range (0,Cycles):
-           self.digitsToSerial(digits)
+           self.digitsToSerial(digits, BlankCntrl)
            self.register_clear()
            self.ShiftData()
            self.LoadData()
            self.Display_On()
            time.sleep(Tperiod*(x+1)/Cycles)
-           self.digitsToSerial(self.StoredDigits)
+           self.digitsToSerial(self.StoredDigits,BlankCntrl)
            self.register_clear()
            self.ShiftData()
            self.LoadData()
            self.Display_On()
            time.sleep(Tperiod*(Cycles - x-1)/Cycles)
-        self.digitsToSerial(digits)
+        self.digitsToSerial(digits, BlankCntrl)
         self.register_clear()
         self.ShiftData()
         self.LoadData()
@@ -308,11 +332,11 @@ class NixieTube():
         self.StoredDigits = digits
 
 
-   def Ramp_Display(self,digits):
+   def Ramp_Display(self,digits, BlankCntrl = []):
    # turn on the nixie tube while ramping supply
         self.Power_Off()
         time.sleep(.125)
-        self.digitsToSerial(digits)
+        self.digitsToSerial(digits, BlankCntrl)
         self.register_clear()
         self.ShiftData()
         self.Display_Off()
@@ -331,7 +355,10 @@ class NixieTube():
         self.PIR_SENSOR = True    
    
    def Pir_Sensor_Off(self):
-        self.PIR_SENSOR = False    
+        self.PIR_SENSOR = False
+
+   def Pir_Delay_set(self,minutes):
+        self.PirDelay = minutes    
 
   
 if __name__ == "__main__":

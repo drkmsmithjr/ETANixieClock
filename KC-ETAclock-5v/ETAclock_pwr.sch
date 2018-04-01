@@ -492,8 +492,6 @@ Wire Wire Line
 Wire Wire Line
 	4600 2100 4600 1800
 Wire Wire Line
-	4250 2500 6250 2500
-Wire Wire Line
 	4900 2100 4900 3100
 Connection ~ 4600 2100
 $Comp
@@ -738,4 +736,19 @@ Wire Wire Line
 	4800 1800 4750 1800
 Wire Wire Line
 	4750 1800 4750 2100
+$Comp
+L R R90
+U 1 1 5AAB76D1
+P 5250 2500
+F 0 "R90" V 5330 2500 50  0000 C CNN
+F 1 "1k" V 5250 2500 50  0000 C CNN
+F 2 "Resistors_SMD:R_0805" V 5180 2500 50  0001 C CNN
+F 3 "" H 5250 2500 50  0001 C CNN
+	1    5250 2500
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	5400 2500 6250 2500
+Wire Wire Line
+	5100 2500 4250 2500
 $EndSCHEMATC
