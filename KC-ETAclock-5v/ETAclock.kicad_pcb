@@ -3,7 +3,7 @@
   (general
     (links 314)
     (no_connects 0)
-    (area 26.594999 52.629999 266.775001 91.515001)
+    (area 12.799287 28.415 280.490715 177.128)
     (thickness 1.6)
     (drawings 32)
     (tracks 2270)
@@ -5497,7 +5497,7 @@
   (gr_text www.surfncircuits.com (at 104.394 85.471) (layer B.SilkS)
     (effects (font (size 1 1.5) (thickness 0.2)) (justify mirror))
   )
-  (gr_text ETA_NIXIE_CLOCK_REV2_1810 (at 104.775 88.011) (layer B.SilkS)
+  (gr_text ETA_NIXIE_CLOCK_REV2_1812 (at 104.775 88.011) (layer B.SilkS)
     (effects (font (size 1 1.5) (thickness 0.25)) (justify mirror))
   )
   (gr_text "Mark Smith 2018" (at 104.521 83.439) (layer B.SilkS)
