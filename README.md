@@ -1,16 +1,17 @@
-# [Nixie Tube Power Supply](https://wp.me/p85ddV-B1 )
+# [Estimated Time of Arrival (ETA) Nixie Tube Clock](https://wp.me/p85ddV-B1 )
+This DIY project will combine the estimated time of arrival function with a nixie tube display to create an estimated time of arrival (ETA) Nixie tube clock. It is all easily controlled by a Raspberry Pi Zero W that is connected to the internet through WiFi to provide the latest time and gets the ETA for any number of destinations. The travel time is provided by the free Google Directions API interface that includes traffic to give the best estimates on any particular day.   The goal is that with an ETA Nixie tube clock, no math is needed to add a rough, often optimistic travel time, to the actual time to determine if we are running late.   The clock does that for you and with the power of IOT, is much more accurate!    A motion sensor is also added to the clock to turn off the Nixie Tube Display when no one is around, saving power and increasing the nixie tube lifetime.    The complete project, including the six IN-4 Nixie tubes, are powered from a 1 amp iPhone charger using the 5v to 170v Nixie Tube Power supply described in another repository. 
 
-See [www.surfncircuits.com](https://wp.me/p85ddV-B1)  for a complete description.  This github repository contains the Kicad Schematic, Spice Simulation, Efficiency Calculations of the 5v to 170v DCM Boost Converter for Powering your Nixie Tubes.   
+See [www.surfncircuits.com](https://wp.me/p85ddV-B1)  for a complete description.  This github repository contains the Kicad Schematic, Spice Simulation, Efficiency Calculations of the Estimated Time of Arrival (ETA) Nixie Tube Clock.   
 
-![PNG of the Schematic](https://github.com/drkmsmithjr/NixiePowerSupply/blob/master/KC_NixieSupply5vTo160v/nixiesupply5vto160vdcmboost-sch.png)
+![PNG of the Schematic](https://github.com/drkmsmithjr/ETANixieClock/blob/master/KC-ETAclock-5v/NixieSchematic.png)
 
-__KC_NixieSupply5vto160v__:  Kicad schematic, PCB layout, BOM.  The footprint is 1.5" x 1.5" and was described and optimized in Part 2 of the blog.     The Board can be ordered from __oshpark.com__.<a href="https://oshpark.com/shared_projects/FZ5eYIVY"><img src="https://oshpark.com/assets/badge-5b7ec47045b78aef6eb9d83b3bac6b1920de805e9a0c227658eac6e19a045b9c.png" alt="Order from OSH Park"></img></a>
+__ETANixieCode__:  This is the python code that will be placed in the ETANixieClock directory on the Raspberry Pi zero.    
 
-__KC_NixieSupply5vto170vMini__:  KiCad schematic, PCB Layout, BOM of the "mini" version of the supply.   This has a footprint of 1.5" x 1" by using smaller output capacitors and using the KiCad power tools to shrink the layout.  This is the system defined by part 3 of the blog.    The layout has all the same constraints as in Part 2.  It still has four mounting holes, a USB input connector and a Terminal output connector.  
+__KC_ETAclock-5v__:  KiCad schematic, PCB Layout, BOM of the ETA Nixie tube clock.  
 
-__SimCalcFiles__:  Spice simulation files and DCM Efficiency Calculations.  NOTE: The LTSPICE (TM) simulation has trouble finding an initial operating point.   To get the simulation to start, use the ESC key and press it twice to skip the initial operating point.   This allows the simulation to continue and will provide a good transient response.    
+__SimCalcFiles__:  Spice simulation files of the Nixie Tube bi-quinary driving circuit.    
 
-__Datasheeets__: Datasheets for different inductors and the power fet.  In the Kicad Schematic, the part numbers and Digikey (TM) links are listed already.   Also the complete BOM is located in the KICAD Directory.      
+__Datasheeets__: Datasheets for the pinout and the TPIC6B595.  In the Kicad Schematic, the part numbers and Digikey (TM) links are listed already.   Also the complete BOM is located in the KC-ETAclock-5v Directory (ETAclock_BOM.ods).      
 
 See the complete blogs entry at  www.surfncircuits.com
   * [Designing a Small Footprint, Low Profile 5v to 170v Nixie Tube Power Supply (Part 1)](https://wp.me/p85ddV-A8 )
