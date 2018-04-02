@@ -13,6 +13,6 @@ __SimCalcFiles__:  Spice simulation files of the Nixie Tube bi-quinary driving c
 
 __Datasheeets__: Datasheets for the pinout and the TPIC6B595.  In the Kicad Schematic, the part numbers and Digikey (TM) links are listed already.   Also the complete BOM is located in the KC-ETAclock-5v Directory (ETAclock_BOM.ods).      
 
-See the complete blogs entry at  [www.surfncircuits.com]()
+See the complete blogs entry at  [www.surfncircuits.com](http://surfncircuits.com/2018/04/02/what-is-an-eta-nixie-tube-clock-and-how-do-you-build-one)
 
 
