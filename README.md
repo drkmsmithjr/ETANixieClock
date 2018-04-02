@@ -7,7 +7,7 @@ See [www.surfncircuits.com](https://wp.me/p85ddV-B1)  for a complete description
 
 __ETANixieCode__:  This is the python code that will be placed in the ETANixieClock directory on the Raspberry Pi zero.    
 
-__KC_ETAclock-5v__:  KiCad schematic, PCB Layout, BOM of the ETA Nixie tube clock.  
+__KC_ETAclock-5v__:  KiCad schematic, PCB Layout, BOM of the ETA Nixie tube clock.  You can order the PCB from oshPark at <a href="https://oshpark.com/shared_projects/B9CmGCXJ"><img src="https://oshpark.com/assets/badge-5b7ec47045b78aef6eb9d83b3bac6b1920de805e9a0c227658eac6e19a045b9c.png" alt="Order from OSH Park"></img></a>  
 
 __SimCalcFiles__:  Spice simulation files of the Nixie Tube bi-quinary driving circuit.    
 
