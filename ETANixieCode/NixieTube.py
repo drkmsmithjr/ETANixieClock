@@ -191,9 +191,7 @@ class NixieTube():
            time.sleep(.001)     
 
    def Write_Display(self, digits, BlankCntrl = []):
-        if self.POWER_ON == False:
-           self.Power_On()
-           time.sleep(.1)
+        self.Power_On()
         self.digitsToSerial(digits, BlankCntrl)
         self.register_clear()
         self.ShiftData()
@@ -202,8 +200,7 @@ class NixieTube():
         self.Display_On()
 
    def Write_Display_No_Off(self, digits, BlankCntrl = []):
-        if self.POWER_ON == False:
-           self.Power_On()
+        self.Power_On()
         self.digitsToSerial(digits, BlankCntrl)
         self.register_clear()
         self.ShiftData()
@@ -212,11 +209,83 @@ class NixieTube():
         self.Display_On()
         self.StoredDigits = digits
 
+   def Write_Spin_Digits(self, z, BlankCntrl = [], spin = 10):
+        # Will take the current digits (z) and spin them in place for 
+        # spin times .
+        # there is a delay=2ms between displays
+        # the total time for the spin is going to be write_display * spin.   
+        delay = .002
+        # power on the display if it is off.   
+        self.Power_On()
+        for y in range (0,spin):
+          #increment z and reset to zero if reach 10
+          for g in range (0,len(z)):
+             z[g] += 1   
+             if z[g] > 9:
+                z[g] = 0
+          self.Write_Display(z,BlankCntrl)
+          time.sleep(delay)
+
+   def Write_Spin_To_Digits(self, orig_digits, new_digits, orig_BlankCntrl = [], new_BlankCntrl = [], startspin = 5, transpin = 3):
+        # Will take the current digits (z) and spin them in place and 
+        # then start to display the new digits one at a time for number of total elements
+        # the startspin is number of spins before starting
+        # the transpins is the spins during transitions.
+        # there is a delay=2ms between displays
+        # the total time for the spin is going to be write_display * spin.   
+        delay = .002
+        # power on the display if it is off.   
+        self.Power_On()
+
+        orig_digitsCpy = list(orig_digits)
+        orig_BlankCntrlCpy = list(orig_BlankCntrl)
+        ind_digits = []
+        ind_BlankCntrl = []
+
+        # we need to use blank cntrl in this routine
+        if orig_BlankCntrl == []:
+           orig_BlankCntrlCpy = [True]*len(orig_BlankCntrl)
+
+        if new_BlankCntrl == []:
+           new_BlankCntrl = [True]*len(new_BlankCntrl)
+
+        
+        # spin then all now 
+        for y in range (0,startspin):
+          #increment z and reset to zero if reach 10
+          for g in range (0,len(orig_digitsCpy)):
+             orig_digitsCpy[g] += 1   
+             if orig_digitsCpy[g] > 9:
+                orig_digitsCpy[g] = 0
+          self.Write_Display(orig_digitsCpy,orig_BlankCntrlCpy)
+          time.sleep(delay)
+
+        # now fix the first new digit and spin the rest of them
+        for y in range(0,len(new_digits)):
+          # add one to ind_digits
+          # pop one from top of orig_digits
+          ind_digits.append(new_digits[y])
+          ind_BlankCntrl.append(new_BlankCntrl[y])
+          orig_digitsCpy.pop(0)
+          orig_BlankCntrlCpy.pop(0)
+          # spin just the original digits fixing the rest
+          for x in range (0,transpin):
+          #increment z and reset to zero if reach 10
+             for g in range (0,len(orig_digitsCpy)):
+                orig_digitsCpy[g] += 1   
+                if orig_digitsCpy[g] > 9:
+                   orig_digitsCpy[g] = 0
+             self.Write_Display(ind_digits+orig_digitsCpy,ind_BlankCntrl+orig_BlankCntrlCpy)
+             time.sleep(delay)
+
+          # update the ind_digits with the new BlankCntrl
+          # now spin the original digits
+
+
    def Write_Fade_Out_Fade_In(self, digits, BlankCntrl = []):
         #print("digits into functions")
         #print(digits)
-        if self.POWER_ON == False:
-           self.Power_On()
+        self.Power_On()
         Tperiod = .0075   
         Cycles = 30
         #print(self.StoredDigits)
@@ -255,8 +324,7 @@ class NixieTube():
         # Tperiod is the Period of on and off
         # cycles is how many cycles to make up the period.   
         # Tperiod*Cycles is the total transition time 
-        if self.POWER_ON == False:
-           self.Power_On()
+        self.Power_On()
         Tperiod = .0075   
         Cycles = 30
         print(self.StoredDigits)
@@ -276,8 +344,7 @@ class NixieTube():
         # Tperiod is the Period of on and off
         # cycles is how many cycles to make up the period.   
         # Tperiod*Cycles is the total transition time
-        if self.POWER_ON == False:
-           self.Power_On()
+        self.Power_On()
         Tperiod = .0075   
         Cycles = 20
         print(self.StoredDigits)
@@ -305,9 +372,7 @@ class NixieTube():
         # Tperiod is the Period of on and off
         # cycles is how many cycles to make up the period.   
         # Tperiod*Cycles1 + Tperiod*Cycles2 is the total transition time 
-
-        if self.POWER_ON == False:
-           self.Power_On()
+        self.Power_On()
         Tperiod = .0010   
         Cycles = 20
         print(self.StoredDigits)

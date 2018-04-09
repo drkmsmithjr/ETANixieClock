@@ -126,6 +126,7 @@ def PrtCurrentTimeSixNixie(timestr):
     global dest
     global TravelDurText
     global pre_time_digits
+    global pre_BlankCntrl
 
     # how many time to display current time before spin
     time_series = 5
@@ -144,6 +145,8 @@ def PrtCurrentTimeSixNixie(timestr):
     # test to determine if we should be using a ETA
     #print("ind")
     #print(ind)
+    ind3 = 0
+
     if ind-time_series > 0: 
        ind3 = math.floor((ind-time_series) / location_series/1.0)
        ind3 = int(ind3)
@@ -163,7 +166,7 @@ def PrtCurrentTimeSixNixie(timestr):
     Minute = int(now.strftime("%M"))
     Minute_1digit = int(math.floor(Minute/10.0))
     Minute_2digit = Minute % 10
-    if ind-time_series <=  0:
+    if ind-time_series <  0:
        time_digits= [Hour_1digit,Hour_2digit,Minute_1digit,Minute_2digit,seconds_1digit,seconds_2digit]
        if Hour_1digit == 1:
           BlankCntrl = []
@@ -182,16 +185,11 @@ def PrtCurrentTimeSixNixie(timestr):
     # spin at end of displaying time or at the end of each location_series display
     if (ind == time_series) or (ind-time_series>0 and ((ind-time_series)%location_series == 0)):
        z = pre_time_digits
+       zbc = pre_BlankCntrl
        #DigitSec.Write_Fade_Out()
        time.sleep(.05)
-       for y in range (0,10):
-          #increment z
-          for g in range (0,len(z)):
-             z[g] += 1   
-             if z[g] > 9:
-                z[g] = 0
-          DigitSec.Write_Display(z,BlankCntrl)
-          time.sleep(.002)
+       DigitSec.Write_Spin_Digits(z,BlankCntrl,10)
+       #DigitSec.Write_Spin_To_Digits(z,time_digits,zbc, BlankCntrl,5,3)
        DigitSec.Display_Off() 
     else:
        #DigitSec.Display_Off()
@@ -200,26 +198,25 @@ def PrtCurrentTimeSixNixie(timestr):
        #DigitSec.Write_Display([time_digits[ind]])
        #blink the seconds
        #BlkCntrl2 = BlankCntrl
-       if ind-time_series <=  0:
-          #BlankCntrl2 = BlankCntrl
-          #BlkCntrl2[4]=False
-          #BlkCntrl2[5]=False
+       if ind-time_series <  0:
           if Hour_1digit == 1:
              DigitSec.Write_Display(time_digits,[True,True,True,True,False,False])
           else:
              DigitSec.Write_Display(time_digits,[False,True,True,True,False,False])
           time.sleep(.05)
-       if ind == 0:
-          #DigitSec.Write_Fade_In([time_digits[ind],time_digits[ind]])
-          DigitSec.Write_Display(time_digits,BlankCntrl)
        else:
-          #DigitSec.Write_Fade_Out_Fade_In([time_digits[ind],time_digits[ind]])
-          DigitSec.Write_Display(time_digits,BlankCntrl)
+          if Hour_1digit == 1:
+             DigitSec.Write_Display(time_digits,[False,False,True,True,True,True])
+          else:
+             DigitSec.Write_Display(time_digits,[False,False,False,True,True,True])
+          time.sleep(.05)
+       DigitSec.Write_Display(time_digits,BlankCntrl)
        print(str(now), time_digits)
     ind += 1
     if ind > time_series + location_series*len(TravelDuration):
        ind = 0
     pre_time_digits = time_digits
+    pre_BlankCntrl = BlankCntrl
 
 def updateETA():
 
@@ -256,6 +253,7 @@ ETDdelay = 2
 DigitSec = NixieTube.NixieTube('IN-4',6)
 DigitSec.Pir_Sensor_On()
 pre_time_digits = [0,0,0,0,0,0]
+pre_BlankCntrl = [False,False,False,False,False]
       
 #create the google maps object using the key
 gmaps = googlemaps.Client(key=clientkey)
