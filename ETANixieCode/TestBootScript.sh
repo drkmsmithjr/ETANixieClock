@@ -1,6 +1,6 @@
 #!/bin/bash
 cd /home/pi/ETANixieClock
-sleep 25
+sleep 30
 python TestETAclock.py &
 
 
