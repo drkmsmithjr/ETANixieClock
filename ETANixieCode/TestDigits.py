@@ -55,16 +55,20 @@ class RepeatedSyncTimer(object):
 
 def PrtNixieDigits(timestr, burntime):
     global ind
+    global blankdigits
     
     time_digits= [ind,ind,ind,ind,ind,ind]
     # test is we have twenty four hour time
     
-    DigitSec.Write_Display([ind,ind,ind,ind,ind,ind])
+    DigitSec.Write_Display([ind,ind,ind,ind,ind,ind], blankdigits)
     print("Digit " + str(ind)+" is being driven now")
     print("the timer is set for %s minutes" % (burntime/60))
     ind += 1
     if ind > 9:
+       #blankdigits = [False,False,False,False,False,False]
+    #if ind > 10:
        ind = 0
+    #   blankdigits = [True,True,True,True,True,True]
 
 def PrtEvenOddNixieDigits(timestr, burntime):
     global ind
@@ -72,7 +76,7 @@ def PrtEvenOddNixieDigits(timestr, burntime):
     time_digits= [ind,ind,ind,ind,ind,ind]
     # test is we have twenty four hour time
         
-    DigitSec.Write_Display([ind,ind,ind,ind,ind,ind])
+    DigitSec.Write_Display([ind,ind,ind,ind,ind,ind],blankdigits)
     print("Digit " + str(ind)+" is being driven now")
     print("the timer is set for %s minutes" % (burntime/60))
     ind += 2
@@ -93,13 +97,15 @@ def PrtOddNixieDigits(timestr):
     time_digits= [ind,ind,ind,ind,ind,ind]
     # test is we have twenty four hour time
         
-    DigitSec.Write_Display([ind,ind,ind,ind,ind,ind])
+    DigitSec.Write_Display([ind,ind,ind,ind,ind,ind],blankdigits)
     print(str(ind), time_digits)
     ind += 2
     if ind > 9:
        ind = 0
 
 
+#blank digits
+blankdigits = [True,True,True,True,True,True]
 
 # global timer
 ind = 0
@@ -120,6 +126,8 @@ pre_time_digits = [0,0,0,0,0,0]
 rt = RepeatedSyncTimer(LoopRate,PrtNixieDigits,datetime.datetime.now(), LoopRate)
 
 
+
+
 print("after timer thread call")
 
 while True:
@@ -137,13 +145,42 @@ while True:
    if raw_option == "t":
       rt.start()
       print ("Timer started")
+   elif raw_option == "ct":
+      while True:
+         raw_option2 = raw_input("Enter delay time in seconds > 0.2 required:")
+         try:
+            c = float(raw_option2)
+            if c < 0.2:
+               print("Enter a time greater than 0.2 seconds")
+            else:
+               rt.interval = c
+               rt.start()
+               break
+         except ValueError:
+            print ("the time is not a float number")
+   elif raw_option == "g":
+      while True:
+         raw_option2 = raw_input("Enter the nixie number to blank [1-6]")
+         try:
+            c = int(raw_option2)
+            if c < 1 or c > 6:
+               print("Enter a number between 1 and 6")
+            else:
+               if blankdigits[c-1] == True:
+                  blankdigits[c-1] = False
+               else:
+                  blankdigits[c-1] = True  
+               DigitSec.Write_Display([ind,ind,ind,ind,ind,ind],blankdigits)  
+               break
+         except ValueError:
+            print ("the input is not a number between 1 and 6")
    elif raw_option == "T":
       while True:
          raw_option2 = raw_input("Enter the number of minutes for All digits:")
          if raw_option2.isdigit():
             # we will start time by writting a zero, timer will update from 1,2,3,4...9
             ind = 0
-            DigitSec.Write_Display([ind,ind,ind,ind,ind,ind])
+            DigitSec.Write_Display([ind,ind,ind,ind,ind,ind],blankdigits)
             ind = 1
             burntime = int(raw_option2)
             burntime = burntime*60
@@ -161,7 +198,7 @@ while True:
          if raw_option2.isdigit():
             # we will start time by writting a zero, timer will update from 2,4,6,8
             ind = 0
-            DigitSec.Write_Display([ind,ind,ind,ind,ind,ind])
+            DigitSec.Write_Display([ind,ind,ind,ind,ind,ind],blankdigits)
             ind = 2
             burntime = int(raw_option2)
             burntime = burntime*60
@@ -179,7 +216,7 @@ while True:
          if raw_option2.isdigit():
             # we will start time by writting a zero, timer will update from 2,4,6,8
             ind = 1
-            DigitSec.Write_Display([ind,ind,ind,ind,ind,ind])
+            DigitSec.Write_Display([ind,ind,ind,ind,ind,ind],blankdigits)
             ind = 3
             burntime = int(raw_option2)
             burntime = burntime*60
@@ -198,7 +235,7 @@ while True:
          if raw_option2.isdigit() and raw_option3.isdigit():
             # we will start time by writting a zero, timer will update from 2,4,6,8
             ind = int(raw_option3)
-            DigitSec.Write_Display([ind,ind,ind,ind,ind,ind])
+            DigitSec.Write_Display([ind,ind,ind,ind,ind,ind],blankdigits)
             burntime = int(raw_option2)
             burntime = burntime*60
             print("Digit %s is being driven now" % ind)
@@ -213,7 +250,7 @@ while True:
       ind += 1
       if ind > 9:
          ind = 0
-      DigitSec.Write_Display([ind,ind,ind,ind,ind,ind])
+      DigitSec.Write_Display([ind,ind,ind,ind,ind,ind],blankdigits)
       print ("indexed digit to next one: %s" % ind)   
    elif raw_option == "x":
       break
@@ -235,7 +272,7 @@ while True:
    elif len(raw_option) == 1:
       if raw_option.isdigit():
          ind = int(raw_option)
-         DigitSec.Write_Display([ind,ind,ind,ind,ind,ind])
+         DigitSec.Write_Display([ind,ind,ind,ind,ind,ind],blankdigits)
          print(" output a: %s" % ind)
       else:
          print ("the wrong option was chosen")
@@ -247,14 +284,16 @@ while True:
          
    print("press:")
    print("return: to index the displayed diget to the next value")
-   print("[t]: to start time 1-9:")
-   print("[T]: For a x minute burn in of all digits")
-   print("[0-9]: to display the digit to light up")
+   print("[t]: To start timed display of digits 0-9 (2 second cycle):")
+   print("[ct]: To start a timed second display of digits 0-9:")
+   print("[T]: For a x minute burn in of digits 0-9")
+   print("[0-9]: to display the particular digit to light up")
    print("[d]: to toggle display N_DISABLE")
    print("[p]: to toggle the power supply on/off")
-   print("[OT]: for a x minute burn in of odd digits (for biquaniary driven tubes")
-   print("[ET]: for a x minute burn in of even digits (for biquinary driven tubes)")
+   print("[OT]: for a x minute burn in of odd digits")
+   print("[ET]: for a x minute burn in of even digits")
    print("[x]: to exit program")
+   print("[g]: toggle the display of every digit") 
      
    
    #break
